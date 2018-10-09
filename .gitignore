@@ -1,6 +1,12 @@
 #Virtual environment directory
 venv
 
-Other files
+#Flask environment variables
+.flaskenv
+
+#IDE setting files
+.vscode
+
+#Other files
 *.txt
 *.exe

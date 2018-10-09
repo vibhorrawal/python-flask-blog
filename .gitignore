@@ -1,0 +1,6 @@
+#Virtual environment directory
+venv
+
+Other files
+*.txt
+*.exe

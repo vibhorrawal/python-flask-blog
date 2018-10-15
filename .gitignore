@@ -12,6 +12,9 @@ __pycache__
 app/__pycache__
 app/main/__pycache__
 
+#Database
+app.db
+
 #Other files
 *.txt
 *.exe

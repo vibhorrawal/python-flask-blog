@@ -30,3 +30,5 @@ def create_app(appConfig=Config):
     app.register_blueprint(main_bp)
 
     return app
+
+from app import models

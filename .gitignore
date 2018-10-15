@@ -10,6 +10,7 @@ venv
 #Python cache
 __pycache__
 app/__pycache__
+app/main/__pycache__
 
 #Other files
 *.txt

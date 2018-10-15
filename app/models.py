@@ -41,8 +41,11 @@ class User(UserMixin, db.Model):
             digest, size)
 
     @staticmethod
-    def get_user(username=None, email=None):
-        pass
+    def get_user(identifier):
+        user = User.query.filter_by(username=identifier).first()
+        if user is None:
+            user = User.query.filter_by(email=identifier).first()
+        return user
 
 @login.user_loader
 def load_user(id):

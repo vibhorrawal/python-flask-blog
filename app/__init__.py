@@ -14,13 +14,10 @@ db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
 login = LoginManager()
-login.login_view = 'auth.login'
-login.login_message = 'Please log in to access this page.'
 
-
-def create_app(config_class=Config):
+def create_app(appConfig=Config):
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(appConfig)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -29,6 +26,7 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
 
-    return app
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
 
-from app import routes
+    return app

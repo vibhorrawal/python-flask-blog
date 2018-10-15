@@ -8,4 +8,4 @@ def index():
     """
     View function for home page of application.
     """
-    return render_template('index.html')
+    return render_template('index.html', title='Home')

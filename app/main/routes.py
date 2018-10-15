@@ -2,10 +2,11 @@
 from datetime import datetime
 
 #Flask dependencies
-from flask import render_template
+from flask import render_template, current_app
 from flask_login import current_user, login_required
 
 from app import db
+from app.models import Post
 
 #Main Blueprint
 from app.main import bp
@@ -18,9 +19,12 @@ def before_request():
 
 @bp.route('/')
 @bp.route('/index')
-@login_required
 def index():
     """
     View function for home page of application.
     """
-    return render_template('index.html', title='Home')
+    if current_user.is_authenticated:
+        posts = current_user.get_post()
+    else:
+        posts = Post.get_random_posts(current_app.config['POSTS_PER_PAGE'])
+    return render_template('index.html', title='Home', posts=posts)

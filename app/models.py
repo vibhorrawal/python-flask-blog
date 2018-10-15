@@ -1,4 +1,5 @@
 #Other dependencies
+import random
 from time import time
 from hashlib import md5
 from datetime import datetime
@@ -24,9 +25,9 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
 
-
-    def __repr__(self):
-        return '<User {}>'.format(self.username)
+    
+    def get_post(self):
+        return self.posts
 
     def set_password(self, password):
         """
@@ -54,6 +55,10 @@ class User(UserMixin, db.Model):
         if user is None:
             user = User.query.filter_by(email=identifier).first()
         return user
+    
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
+
 
 @login.user_loader
 def load_user(id):
@@ -72,6 +77,19 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
+
+    @staticmethod
+    def get_random_posts(num):
+        """
+        Getting number of random posts specefied
+        """
+        numPosts = len(Post.query.all())
+        if num > numPosts:
+            num = numPosts
+        posts = list(Post.query.all())
+        random.shuffle(posts)
+        return posts[0:num]
+
     def __repr__(self):
         return '<Post {}>'.format(self.body)
 

@@ -1,0 +1,19 @@
+<table class="table table-hover">
+    {% for post in posts %}
+        <tr>
+            <td width="70px">
+                <a href="">
+                    <img src="{{ post.author.avatar(70) }}" />
+                </a>
+            </td>
+            <td>
+                <a href="">
+                    {{ post.author.username }}
+                </a>
+                said {{ moment(post.timestamp).fromNow() }} ago
+                <br>
+                {{ post.body }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>

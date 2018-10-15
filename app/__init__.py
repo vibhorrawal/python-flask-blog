@@ -14,6 +14,9 @@ db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
 login = LoginManager()
+login.login_view = 'auth.login'
+login.login_message = 'Please log in for further access.'
+
 
 def create_app(appConfig=Config):
     app = Flask(__name__)
@@ -28,6 +31,9 @@ def create_app(appConfig=Config):
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
+    
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     return app
 

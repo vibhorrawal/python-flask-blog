@@ -9,7 +9,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 #Importing Database
-from app import db
+from app import db, login
 
 class User(UserMixin, db.Model):
     """
@@ -26,6 +26,9 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.username)
 
     def set_password(self, password):
+        """
+        Method to set user password.
+        """
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
@@ -36,3 +39,9 @@ class User(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 
+@login.user_loader
+def load_user(id):
+    """
+    Method to load User
+    """
+    return User.query.get(int(id))

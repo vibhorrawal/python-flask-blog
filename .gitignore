@@ -16,5 +16,6 @@ app/main/__pycache__
 app.db
 
 #Other files
+test.py
 *.txt
 *.exe

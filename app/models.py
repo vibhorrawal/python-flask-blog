@@ -1,17 +1,21 @@
 #Other dependencies
 import random
-from time import time
 from hashlib import md5
 from datetime import datetime
 
 
 #Flask and it's Dependencies
-from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 #Importing Database
 from app import db, login
+
+
+follow_tab = db.Table('follow_tab', 
+        db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+    )
 
 class User(UserMixin, db.Model):
     """
@@ -21,9 +25,17 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    about_me = db.Column(db.String(240))
+    about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    followed = db.relationship(
+        'User',
+        secondary=follow_tab,
+        primaryjoin=(follow_tab.c.follower_id == id),
+        secondaryjoin=(follow_tab.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     
     def get_post(self):
@@ -51,6 +63,39 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
+    
+    def follow(self, user):
+        """
+        If user do not follow supplied user then starts following.
+        """
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        """
+        If user follows supplied user then, unfollow.
+        """
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        """
+        Is our user following supplied user.
+        """
+        return self.followed.filter(
+            follow_tab.c.followed_id == user.id).count() > 0
+
+    def followed_posts(self):
+        """
+        Posts by all users, our user is following,
+        in chronologically reversed order(newest first).
+        Left outer join on,
+        Post <--> follow_tab
+        """
+        followP = Post.query.join(
+            follow_tab, (follow_tab.c.followed_id == Post.user_id)).filter(
+                follow_tab.c.follower_id == self.id)
+        return followP.order_by(Post.timestamp.desc())
 
     @staticmethod
     def get_user(identifier):

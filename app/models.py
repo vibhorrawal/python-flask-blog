@@ -27,6 +27,9 @@ class User(UserMixin, db.Model):
 
     
     def get_post(self):
+        """
+        Method to get post by user.
+        """
         return self.posts
 
     def set_password(self, password):
@@ -51,6 +54,9 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def get_user(identifier):
+        """
+        Method to get user using email or username.
+        """
         user = User.query.filter_by(username=identifier).first()
         if user is None:
             user = User.query.filter_by(email=identifier).first()
@@ -81,7 +87,7 @@ class Post(db.Model):
     @staticmethod
     def get_random_posts(num):
         """
-        Getting number of random posts specefied
+        Getting number of random posts specefied.
         """
         numPosts = len(Post.query.all())
         if num > numPosts:

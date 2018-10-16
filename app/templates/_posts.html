@@ -7,7 +7,7 @@
                 </a>
             </td>
             <td>
-                <a href="">
+                <a href="{{ url_for('user.profile', username=current_user.username) }}">
                     {{ post.author.username }}
                 </a>
                 said {{ moment(post.timestamp).fromNow() }} ago

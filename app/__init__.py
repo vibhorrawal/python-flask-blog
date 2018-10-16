@@ -32,6 +32,9 @@ def create_app(appConfig=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.error import bp as error_bp
+    app.register_blueprint(error_bp)
+
     from app.user import bp as user_bp
     app.register_blueprint(user_bp, url_prefix='/user')
 

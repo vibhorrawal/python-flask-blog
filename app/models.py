@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     followed = db.relationship(
         'User',
@@ -36,8 +37,14 @@ class User(UserMixin, db.Model):
         backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic'
     )
+    msg_sent = db.relationship('Message',
+                               foreign_keys='Message.sender_id',
+                               backref='sender', lazy='dynamic')
+    msg_received = db.relationship('Message',
+                                   foreign_keys='Message.recipient_id',
+                                   backref='recipient', lazy='dynamic')
 
-    
+
     def get_post(self):
         """
         Method to get post by user.
@@ -92,10 +99,47 @@ class User(UserMixin, db.Model):
         Left outer join on,
         Post <--> follow_tab
         """
-        followP = Post.query.join(
-            follow_tab, (follow_tab.c.followed_id == Post.user_id)).filter(
-                follow_tab.c.follower_id == self.id)
-        return followP.order_by(Post.timestamp.desc())
+        return Post.query.join(follow_tab,
+                    (follow_tab.c.followed_id == Post.user_id)).filter(
+                        follow_tab.c.follower_id == self.id).order_by(Post.timestamp.desc())
+    
+    def get_conversation_with(self, user, change_read=False):
+        """
+        Returns Conversation with supplied user,
+        changes read flag depending on supplied flag.
+        """
+        #Self --> User messages
+        mySide = list(self.msg_sent.filter_by(recipient_id=user.id).all())
+        #self <-- User messages
+        userSide = list(self.msg_received.filter_by(sender_id=user.id).all())
+        #Joinning two sides
+        conversation=sorted(mySide+userSide,
+                            key = lambda x: x.timestamp,
+                            reverse=True)
+        #If read flag is True then read flag on messges is changes
+        if change_read:
+            for message in conversation:
+                if message.recipient_id == self.id:
+                    message.is_read = True
+            db.session.commit()
+        return conversation
+    
+    def get_unread_users(self):
+        """
+        Returns all users from whom unread messages.
+        """
+        msg = Message.query.filter_by(recipient_id=self.id, is_read=False).all()
+        unread_users = list()
+        for m in msg:
+            unread_users.append(User.query.get(int(m.sender_id)))
+        return list(set(unread_users))
+
+    def send_msg(self, user, msg):
+        m = Message(sender=self,
+                    recipient=user,
+                    body=msg)
+        db.session.add(m)
+        db.session.commit()
 
     @staticmethod
     def get_user(identifier):
@@ -145,5 +189,19 @@ class Post(db.Model):
         return '<Post {}>'.format(self.body)
 
 
+class Message(db.Model):
+    """
+    Model to store all private messages.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+
+
+    def __repr__(self):
+        return '<Message: {}>'.format(self.body)
 
 

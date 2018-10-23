@@ -32,6 +32,9 @@ def create_app(appConfig=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
+    from app.message import bp as message_bp
+    app.register_blueprint(message_bp)
+
     from app.error import bp as error_bp
     app.register_blueprint(error_bp)
 
@@ -44,3 +47,4 @@ def create_app(appConfig=Config):
     return app
 
 from app import models
+

@@ -1,7 +1,7 @@
 
-from flask import render_template, flash, url_for,\
+from flask import render_template, url_for,\
                   request, current_app, abort
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from app import db
 from app.user import bp
@@ -24,4 +24,8 @@ def profile(username):
     return render_template('user/profile.html', user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
 
-
+@bp.route('/messages')
+@login_required
+def messages():
+    unread_users = current_user.get_unread_user()
+    return render_template('user/messages.html', users=users)

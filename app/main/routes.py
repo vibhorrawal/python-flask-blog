@@ -2,7 +2,8 @@
 from datetime import datetime
 
 #Flask dependencies
-from flask import render_template, current_app, flash, redirect, url_for
+from flask import render_template, current_app, flash,\
+                  redirect, url_for, abort
 from flask_login import current_user, login_required
 
 from app import db
@@ -33,20 +34,26 @@ def index():
 @login_required
 def follow(username):
     user = User.get_user(username)
-    if user is None or user == current_user:
-        flash('You cannot follow {} this user!'.format(username))
+    if user is None:
+        flash('{} user not found.'.format(username))
+        abort(404)
+    elif user == current_user:
+        flash('You cannot follow yourself!')
         return redirect(url_for(get_next_page_or()))
     current_user.follow(user)
     db.session.commit()
-    flash('You are following {}!'.format(username))
+    flash('You are now following {}!'.format(username))
     return redirect(url_for('user.profile', username=username))
 
 @bp.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
     user = User.get_user(username)
-    if user is None or user == current_user:
-        flash('You cannot unfollow {} this user!'.format(username))
+    if user is None:
+        flash('{} user not found.'.format(username))
+        abort(404)
+    elif user == current_user:
+        flash('You cannot unfollow yourself!')
         return redirect(url_for(get_next_page_or()))
     current_user.unfollow(user)
     db.session.commit()

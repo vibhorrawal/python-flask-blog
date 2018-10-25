@@ -2,21 +2,27 @@
     {% block app_content %}
     <table class="table table-hover">
         <tr>
-            <td width="216px"><img src="{{ user.avatar(216) }}", alt='{{ user.username }}'></td>
+            <td width="176px"><img src="{{ user.avatar(176) }}", alt='{{ user.username }}'></td>
             <td>
                 <h1>User: {{ user.username }}</h1>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {% if user.last_seen and current_user.id==user.id %}
                 <p>Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
-                {% endif %}
-                <p> {{ user.followers.count() }} follower(s).</p>
-                <p>Following {{user.followed.count()}} user(s).</p>
-                {% if user == current_user %}
-                <p><a href="">Edit your profile</a></p>
-                {% elif current_user.is_following(user) %}
-                <p><a href="{{ url_for('main.unfollow', username=user.username) }}">unfollow</a></p>
-                {% else %}
-                <p><a href="{{ url_for('main.follow', username=user.username) }}">Follow</a></p>
+                {% endif %}                
+                <a href="" class='badge'>
+                    <span id="follower_count"></span> follower(s)
+                </a>
+                <a href="" class='badge'>
+                    <span id="followed_count"></span> following
+                </a>
+                {% if not current_user.is_anonymous %}
+                    {% if user == current_user %}
+                    <p><a href="">Edit your profile</a></p>
+                    {% elif current_user.is_following(user) %}
+                    <p><a href="{{ url_for('main.unfollow', username=user.username) }}">Unfollow</a></p>
+                    {% else %}
+                    <p><a href="{{ url_for('main.follow', username=user.username) }}">Follow</a></p>
+                    {% endif %}
                 {% endif %}
             </td>
         </tr>
@@ -36,4 +42,19 @@
             </li>
         </ul>
     </nav>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
+                // Your AJAX route here
+                function(data) {
+                    document.getElementById('followed_count').innerHTML = data.Following;
+                    document.getElementById('follower_count').innerHTML = data.Followers;
+                }
+            );
+            setTimeout(arguments.callee, 1200);
+        })();
+    </script>
 {% endblock %}

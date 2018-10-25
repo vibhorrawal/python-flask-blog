@@ -2,7 +2,7 @@
     {% for post in posts %}
         <tr>
             <td width="70px">
-                <a href="">
+                <a href="{{ url_for('user.profile', username=current_user.username) }}">
                     <img src="{{ post.author.avatar(70) }}" />
                 </a>
             </td>

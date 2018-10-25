@@ -9,8 +9,6 @@ app = create_app()
 def make_shell_context():
     return {'db': db, 'User': User, 'Post': Post, 'Message':Message}
 
-
-"""
 if __name__ == "__main__":
     app.run(threaded=True)
-"""
+

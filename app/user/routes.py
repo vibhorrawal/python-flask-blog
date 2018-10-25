@@ -1,14 +1,21 @@
+#Other dependencies
+import json
 
+#Flask and it's dependencies
 from flask import render_template, url_for,\
                   request, current_app, abort
 from flask_login import current_user, login_required
 
+#App dependencies
 from app import db
 from app.user import bp
 from app.models import User, Post
 
 @bp.route('/<username>')
 def profile(username):
+    """
+    View function for user profile page.
+    """
     user = User.get_user(username)
     if user is None:
         abort(404)
@@ -21,11 +28,25 @@ def profile(username):
                        page=posts.next_num) if posts.has_next else None
     prev_url = url_for('user.profile', username=user.username,
                        page=posts.prev_num) if posts.has_prev else None
-    return render_template('user/profile.html', user=user, posts=posts.items,
+    return render_template('user/profile.html',
+                           user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
+
+@bp.route('/_ffCount/<username>', methods=['GET'])
+@login_required
+def _ffCount(username):
+    user = User.get_user(username)
+    if user is None:
+        abort(404)
+    return json.dumps({
+        'Following': user.get_followed_count(),
+        'Followers': user.get_followers_count()
+    })
 
 @bp.route('/messages')
 @login_required
 def messages():
     unread_users = current_user.get_unread_user()
     return render_template('user/messages.html', users=users)
+
+

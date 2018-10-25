@@ -92,6 +92,18 @@ class User(UserMixin, db.Model):
         return self.followed.filter(
             follow_tab.c.followed_id == user.id).count() > 0
 
+    def get_followers_count(self):
+        """
+        Method provide followers count.
+        """
+        return.followers.count()
+
+    def get_followed_count(self):
+        """
+        Method provide count of users following self.
+        """
+        return self.followed.count()
+
     def followed_posts(self):
         """
         Posts by all users, our user is following,
@@ -102,7 +114,7 @@ class User(UserMixin, db.Model):
         return Post.query.join(follow_tab,
                     (follow_tab.c.followed_id == Post.user_id)).filter(
                         follow_tab.c.follower_id == self.id).order_by(Post.timestamp.desc())
-    
+   
     def get_conversation_with(self, user, change_read=False):
         """
         Returns Conversation with supplied user,

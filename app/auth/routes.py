@@ -15,7 +15,7 @@ def login():
     Login View function
     """
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(get_next_page_or('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.get_user(identifier=form.identifier.data)
@@ -23,7 +23,7 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
-        return redirect(get_next_page_or('main.index'))
+        return redirect(get_next_page_or())
     return render_template('auth/login.html', title='Sign In', form=form)
 
 
@@ -53,5 +53,5 @@ def register():
         db.session.commit()
         flash('Registration Successful!')
         login_user(user, remember=True)
-        return redirect(get_next_page_or('main.index'))
+        return redirect(get_next_page_or())
     return render_template('auth/register.html', title='Register', form=form)

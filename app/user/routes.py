@@ -7,7 +7,6 @@ from flask import render_template, url_for,\
 from flask_login import current_user, login_required
 
 #App dependencies
-from app import db
 from app.user import bp
 from app.models import User, Post
 
@@ -35,6 +34,9 @@ def profile(username):
 @bp.route('/_ffCount/<username>', methods=['GET'])
 @login_required
 def _ffCount(username):
+    """
+    View function for Ajax call from js.
+    """
     user = User.get_user(username)
     if user is None:
         abort(404)
@@ -46,7 +48,27 @@ def _ffCount(username):
 @bp.route('/messages')
 @login_required
 def messages():
+    """
+    View function to List all active conversation.
+    """
     unread_users = current_user.get_unread_user()
     return render_template('user/messages.html', users=users)
 
+@bp.route('/followers/<username>')
+def followers(username):
+    """
+    View function to list all followers of a user.
+    """
+    u = User.get_user(username)
+    users = u.get_followers()
+    return render_template('user/followers.html', user=u, users=users)
+
+@bp.route('/followed/<username>')
+def followed(username):
+    """
+    View function to list all followed people of a user.
+    """
+    u = User.get_user(username)
+    users = u.get_followed()
+    return render_template('user/followed.html', user=u, users=users)
 

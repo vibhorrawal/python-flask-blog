@@ -32,9 +32,6 @@ def create_app(appConfig=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.message import bp as message_bp
-    app.register_blueprint(message_bp)
-
     from app.error import bp as error_bp
     app.register_blueprint(error_bp)
 
@@ -43,6 +40,9 @@ def create_app(appConfig=Config):
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    from app.message import bp as message_bp
+    app.register_blueprint(message_bp, url_prefix='/message')
 
     return app
 

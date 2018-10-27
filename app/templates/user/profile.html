@@ -9,10 +9,10 @@
                 {% if user.last_seen and current_user.id==user.id %}
                 <p>Last seen on: {{ moment(user.last_seen).format('LLL') }}</p>
                 {% endif %}                
-                <a href="" class='badge'>
+                <a href="{{ url_for('user.followers', username=user.username) }}" class='badge'>
                     <span id="follower_count"></span> follower(s)
                 </a>
-                <a href="" class='badge'>
+                <a href="{{ url_for('user.followed', username=user.username) }}" class='badge'>
                     <span id="followed_count"></span> following
                 </a>
                 {% if not current_user.is_anonymous %}

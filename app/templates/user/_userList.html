@@ -1,15 +1,22 @@
 <table class="table table-hover">
     {% for u in users %}
         <tr>
-            <td width="70px">
-                <a href="{{ url_for('user.profile', username=current_user.username) }}">
-                    <img src="{{ u.avatar(70) }}" />
-                </a>
+            <td width="70px" style="magin-right:4%;">
+            <a href="{{ url_for('user.profile', username=u.username) }}">    
+                <img src="{{ u.avatar(70) }}" />
+            </a>
             </td>
             <td>
-                <a href="{{ url_for('user.profile', username=u.username) }}">
-                    {{ u.username }}
-                </a>
+            <a href="{{ url_for('user.profile', username=u.username) }}" 
+               style="text-decoration: none;color: black;">
+                {{ u.username }}
+                <br>
+                {% if u.about_me %}{{ u.about_me }}{% endif %}
+                <br>
+                {% if u.last_seen and u.is_following(current_user) %}
+                Last seen on: {{ moment(u.last_seen).format('LLL') }}
+                {% endif %}
+            </a>
             </td>
         </tr>
     {% endfor %}

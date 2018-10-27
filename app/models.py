@@ -3,7 +3,6 @@ import random
 from hashlib import md5
 from datetime import datetime
 
-
 #Flask and it's Dependencies
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,6 +15,7 @@ follow_tab = db.Table('follow_tab',
         db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
         db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
     )
+
 
 class User(UserMixin, db.Model):
     """
@@ -96,13 +96,25 @@ class User(UserMixin, db.Model):
         """
         Method provide followers count.
         """
-        return.followers.count()
+        return self.followers.count()
 
     def get_followed_count(self):
         """
         Method provide count of users following self.
         """
         return self.followed.count()
+
+    def get_followers(self):
+        """
+        Get List of all fillowers of self.
+        """
+        return self.followers.all()
+    
+    def get_followed(self):
+        """
+        Get List of all people self is following.
+        """
+        return self.followed.all()
 
     def followed_posts(self):
         """
@@ -141,10 +153,9 @@ class User(UserMixin, db.Model):
         Returns all users from whom unread messages.
         """
         msg = Message.query.filter_by(recipient_id=self.id, is_read=False).all()
-        unread_users = list()
-        for m in msg:
-            unread_users.append(User.query.get(int(m.sender_id)))
-        return list(set(unread_users))
+        return list(set(list(
+            [User.query.get(int(m.sender_id)) for m in msg]
+        )))
 
     def send_msg(self, user, msg):
         m = Message(sender=self,
@@ -180,7 +191,7 @@ class Post(db.Model):
     Relational table to store posts by user
     """
     id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(140), index=True)
+    body = db.Column(db.Text, index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     

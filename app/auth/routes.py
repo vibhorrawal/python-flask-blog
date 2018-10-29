@@ -1,3 +1,4 @@
+#Flask dependencies
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -15,6 +16,7 @@ def login():
     Login View function
     """
     if current_user.is_authenticated:
+        flash('You are already logged in, please logout to login using different id.')
         return redirect(get_next_page_or('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
@@ -34,7 +36,7 @@ def logout():
     Logout view function.
     """
     logout_user()
-    flash('You logged out')
+    flash('Log out successful.')
     return redirect(url_for('main.index'))
 
 
@@ -44,6 +46,7 @@ def register():
     User Registration view function.
     """
     if current_user.is_authenticated:
+        flash('You are already registered, please logout for new registration.')
         return redirect(url_for('main.index'))
     form = RegisterForm()
     if form.validate_on_submit():

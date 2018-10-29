@@ -11,6 +11,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 
 
+"""
+Association table for many to many relation of followers on 
+User table.
+"""
 follow_tab = db.Table('follow_tab', 
         db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
         db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
@@ -28,7 +32,10 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     
+    #Relationship for Post Table
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    
+    #Relationship for many to many relatin on follower association table
     followed = db.relationship(
         'User',
         secondary=follow_tab,
@@ -37,6 +44,8 @@ class User(UserMixin, db.Model):
         backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic'
     )
+    
+    #Relationships for message table, sent and recieved messages.
     msg_sent = db.relationship('Message',
                                foreign_keys='Message.sender_id',
                                backref='sender', lazy='dynamic')
@@ -160,15 +169,21 @@ class User(UserMixin, db.Model):
         )))
 
     def send_msg(self, user, msg):
+        """
+        Method to send personal message from self to user.
+        """
         m = Message(sender=self,
                     recipient=user,
                     body=msg)
         db.session.add(m)
         db.session.commit()
 
-    def update_last_seen(by=datetime.utcnow()):
+    def update_last_seen(self, by=datetime.utcnow()):
+        """
+        Method to update last of user.
+        """
         self.last_seen = by
-        db.session.commit()        
+        db.session.commit()
 
     @staticmethod
     def get_user(identifier):
@@ -204,6 +219,9 @@ class Post(db.Model):
 
     @staticmethod
     def add_post(body_, author_):
+        """
+        Method to add new post by user.
+        """
         post = Post(body=body_, author=author_)
         db.session.add(post)
         db.session.commit()

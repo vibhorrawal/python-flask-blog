@@ -1,9 +1,9 @@
-
 #Flask dependencies
 from flask import render_template, current_app, flash,\
                   redirect, url_for, abort
 from flask_login import current_user, login_required
 
+#App dependencies
 from app.models import Post, User #Database models
 from app.main.forms import PostForm
 
@@ -12,6 +12,10 @@ from app.main import bp
 
 @bp.before_app_request
 def before_request():
+    """
+    Method executed everytime a request is made.
+    Currently working to update user last seen.
+    """
     if current_user.is_authenticated:
         current_user.update_last_seen()
 
@@ -37,6 +41,9 @@ def index():
 @bp.route('/follow/<username>')
 @login_required
 def follow(username):
+    """
+    View function for current_user to follow user by username.
+    """
     user = User.get_user(username)
     if user is None:
         flash('{} user not found.'.format(username))
@@ -51,6 +58,9 @@ def follow(username):
 @bp.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
+    """
+    View function for current_user to unfollow user by username.
+    """
     user = User.get_user(username)
     if user is None:
         flash('{} user not found.'.format(username))

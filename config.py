@@ -20,4 +20,4 @@ class Config(object):
     
     ADMINS = ['your-email@example.com', os.environ.get('ADMIN1')]
     
-    POSTS_PER_PAGE = 3
+    POSTS_PER_PAGE = 5

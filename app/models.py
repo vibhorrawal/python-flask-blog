@@ -77,6 +77,7 @@ class User(UserMixin, db.Model):
         """
         if not self.is_following(user):
             self.followed.append(user)
+            db.session.commit()
 
     def unfollow(self, user):
         """
@@ -84,6 +85,7 @@ class User(UserMixin, db.Model):
         """
         if self.is_following(user):
             self.followed.remove(user)
+            db.session.commit()
 
     def is_following(self, user):
         """
@@ -164,6 +166,10 @@ class User(UserMixin, db.Model):
         db.session.add(m)
         db.session.commit()
 
+    def update_last_seen(by=datetime.utcnow()):
+        self.last_seen = by
+        db.session.commit()        
+
     @staticmethod
     def get_user(identifier):
         """
@@ -194,14 +200,20 @@ class Post(db.Model):
     body = db.Column(db.Text, index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    
+
+
+    @staticmethod
+    def add_post(body_, author_):
+        post = Post(body=body_, author=author_)
+        db.session.add(post)
+        db.session.commit()
 
     @staticmethod
     def get_random_posts(num):
         """
         Getting number of random posts specefied.
         """
-        numPosts = len(Post.query.all())
+        numPosts = Post.query.count()
         if num > numPosts:
             num = numPosts
         posts = list(Post.query.all())

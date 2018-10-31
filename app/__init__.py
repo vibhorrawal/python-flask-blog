@@ -1,12 +1,18 @@
 #Flask and it's dependencies
 from flask import Flask, request, current_app
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
 from flask_mail import Mail
-from flask_bootstrap import Bootstrap
+from flask_login import LoginManager
 from flask_moment import Moment
+from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+
+#Project dependencies
+from .utility import setup_logging 
+
+#Application Confirigation object
 from config import Config
+
 
 mail = Mail()
 moment = Moment()
@@ -44,6 +50,8 @@ def create_app(appConfig=Config):
     from app.message import bp as message_bp
     app.register_blueprint(message_bp, url_prefix='/message')
 
+    setup_logging(app)
+        
     return app
 
 from app import models

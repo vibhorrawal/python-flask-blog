@@ -1,11 +1,14 @@
 #Virtual environment directory
 venv
 
-#Flask environment variables
+#Project environment variables
 .env
 
 #IDE setting files
 .vscode
+
+#Log files
+logs
 
 #Python cache
 __pycache__

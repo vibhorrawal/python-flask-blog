@@ -1,6 +1,6 @@
 #Flask dependencies
-from flask import render_template, current_app, flash,\
-                  redirect, url_for, abort
+from flask import render_template, current_app, redirect,\
+                  flash, url_for, abort
 from flask_login import current_user, login_required
 
 #App dependencies

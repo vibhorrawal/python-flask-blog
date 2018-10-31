@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block app_content %}
+    <table class="table table-hover">    
+    {% for msg in chat %}
+        <tr><td>
+            <p>{{msg.body}}</p>
+        </td></tr>
+    {% endfor %}
+    </table>
+{% endblock %}

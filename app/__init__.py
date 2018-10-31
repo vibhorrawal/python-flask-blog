@@ -22,6 +22,7 @@ bootstrap = Bootstrap()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please log in for further access.'
+login.session_protection = 'strong'
 
 
 def create_app(appConfig=Config):
@@ -51,7 +52,7 @@ def create_app(appConfig=Config):
     app.register_blueprint(message_bp, url_prefix='/message')
 
     setup_logging(app)
-        
+
     return app
 
 from app import models

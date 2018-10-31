@@ -5,9 +5,9 @@ from flask_login import current_user, login_required
 #Module blueprint
 from app.message import bp
 
-@bp.route('/message', methods=['GET', 'POST'])
+@bp.route('/dashboard', methods=['GET', 'POST'])
 @login_required
-def message():
+def dashboard():
     """
     View function for private chat dashboard.
     """

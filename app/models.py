@@ -138,26 +138,28 @@ class User(UserMixin, db.Model):
                     (follow_tab.c.followed_id == Post.user_id)).filter(
                         follow_tab.c.follower_id == self.id).order_by(Post.timestamp.desc())
    
-    def get_conversation_with(self, user, change_read=False):
+    def get_conversation_with(self, user, change_read=False, want_decend=True):
         """
         Returns Conversation with supplied user,
-        changes read flag depending on supplied flag.
+        changes read flag w.r.t change_read.
         """
-        #Self --> User messages
-        mySide = list(self.msg_sent.filter_by(recipient_id=user.id).all())
-        #self <-- User messages
-        userSide = list(self.msg_received.filter_by(sender_id=user.id).all())
-        #Joinning two sides
-        conversation=sorted(mySide+userSide,
-                            key = lambda x: x.timestamp,
-                            reverse=True)
-        #If read flag is True then read flag on messges is changes
-        if change_read:
-            for message in conversation:
-                if message.recipient_id == self.id:
-                    message.is_read = True
-            db.session.commit()
-        return conversation
+        if self.id != user.id:
+            #Self --> User messages
+            mySide = list(self.msg_sent.filter_by(recipient_id=user.id).all())
+            #self <-- User messages
+            userSide = list(self.msg_received.filter_by(sender_id=user.id).all())
+            #Joinning two sides
+            conversation=sorted(mySide+userSide,
+                                key = lambda x: x.timestamp,
+                                reverse=want_decend)
+            #If read flag is True then read flag on messges is changes
+            if change_read:
+                for msg in conversation:
+                    if msg.recipient_id == self.id:
+                        Message.query.get(msg.id).is_read = True
+                db.session.commit()
+            return conversation
+        return None
     
     def get_unread_users(self):
         """
@@ -168,15 +170,20 @@ class User(UserMixin, db.Model):
             [User.query.get(int(m.sender_id)) for m in msg]
         )))
 
-    def send_msg(self, user, msg):
+    def send_msg(self, to, msgB):
         """
         Method to send personal message from self to user.
         """
-        m = Message(sender=self,
-                    recipient=user,
-                    body=msg)
-        db.session.add(m)
-        db.session.commit()
+        if self.id != to.id:
+            last_msg = self.get_conversation_with(to)[0]
+            if last_msg.sender_id == self.id:#To add new text to last message, if it was of self
+                Message.query.get(int(last_msg.id)).body += ('\n'+msgB)
+            else:
+                m = Message(sender=self,
+                            recipient=to,
+                            body=msgB)
+                db.session.add(m)
+            db.session.commit()
 
     def update_last_seen(self, by=datetime.utcnow()):
         """

@@ -1,12 +1,15 @@
 #Python dependencies
 import os
+import sys
+import subprocess
 import logging
 from logging.handlers import RotatingFileHandler
 
-#Flask andit's dependencies
+#Flask and it's dependencies
 from flask import request, url_for
 from werkzeug.urls import url_parse
 
+from app.models import 
 
 def get_next_page_or(default='main.index'):
     """
@@ -23,12 +26,22 @@ def setup_logging(app):
     """
     if not os.path.exists('logs'):
         os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/project.log',
-                                    maxBytes=20480,
-                                    backupCount=20)
-    file_handler.setFormatter(logging.Formatter(
+    f_handle = RotatingFileHandler('logs/project.log', maxBytes=20480, backupCount=20)
+    f_handle.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-    file_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(file_handler)
+    f_handle.setLevel(logging.ERROR)
+    app.logger.addHandler(f_handle)
     app.logger.setLevel(logging.ERROR)
     app.logger.info('Server startup')
+
+
+def setup_project():
+    """
+    Method to setup project.
+    """
+    subprocess.call([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"])
+    
+    env_data = '''FLASK_APP=project.py
+SECRET_KEY=some-secret-key'''
+    open('.env', 'w').write(env_data)
+    #create dummy data

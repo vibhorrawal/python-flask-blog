@@ -20,5 +20,6 @@ app.db
 
 #Other files
 test.py
-*.txt
+test.html
+notes.txt
 *.exe

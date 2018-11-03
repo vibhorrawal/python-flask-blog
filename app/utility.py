@@ -2,6 +2,7 @@
 import os
 import sys
 import subprocess
+from subprocess import check_output as run_out
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -38,11 +39,12 @@ def setup_project():
     """
     try:
         #Creating Virtual Environment
-        subprocess.check_call([sys.executable, "-m", "venv", "venv"], shell=True)
+        run_out([sys.executable, "-m", "venv", "venv"], shell=True)
         #Activating Virtual Environment
-        subprocess.check_call(["venv/Scripts/activate"])
+        run_out(["venv/Scripts/activate"])
         #Installing Dependencies
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"], shell=True)
+        run_out([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"], 
+                shell=True)
         
         #Creating .env file
         env_data = '''FLASK_APP=project.py
@@ -50,8 +52,9 @@ def setup_project():
         open('.env', 'w').write(env_data)
         
         #Initializing database
-        subprocess.check_call("flask", "db", "migrate")
-        subprocess.check_call("flask", "db", "upgrade")
+        run_out(["flask", "db", "migrate"], shell=True)
+        run_out(["flask", "db", "migrate"], shell=True)
+        run_out(["flask", "db", "upgrade"], shell=True)
 
         #App dependencies
         from app.models import User, Post, Message

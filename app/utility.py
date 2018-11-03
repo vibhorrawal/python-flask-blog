@@ -5,16 +5,13 @@ import subprocess
 import logging
 from logging.handlers import RotatingFileHandler
 
-#Flask and it's dependencies
-from flask import request, url_for
-from werkzeug.urls import url_parse
-
-from app.models import 
-
 def get_next_page_or(default='main.index'):
     """
     Method to get next page to a terminating event like user login
-    """
+    """    
+    #Flask and it's dependencies
+    from flask import request, url_for
+    from werkzeug.urls import url_parse
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
         next_page = url_for(default)
@@ -39,9 +36,31 @@ def setup_project():
     """
     Method to setup project.
     """
-    subprocess.call([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"])
-    
-    env_data = '''FLASK_APP=project.py
-SECRET_KEY=some-secret-key'''
-    open('.env', 'w').write(env_data)
-    #create dummy data
+    try:
+        #Creating Virtual Environment
+        subprocess.check_call([sys.executable, "-m", "venv", "venv"], shell=True)
+        #Activating Virtual Environment
+        subprocess.check_call(["venv/Scripts/activate"])
+        #Installing Dependencies
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"], shell=True)
+        
+        #Creating .env file
+        env_data = '''FLASK_APP=project.py
+    SECRET_KEY=some-secret-key'''
+        open('.env', 'w').write(env_data)
+        
+        #Initializing database
+        subprocess.check_call("flask", "db", "migrate")
+        subprocess.check_call("flask", "db", "upgrade")
+
+        #App dependencies
+        from app.models import User, Post, Message
+        #Creating Test Data
+
+    except subprocess.CalledProcessError as c:
+        print(c)
+        print(c.returncode)
+    except Exception as e:
+        print(e)
+
+

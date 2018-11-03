@@ -1,6 +1,7 @@
 #Python dependencies
 import os
 import sys
+import time
 import subprocess
 from subprocess import check_output as run_out
 import logging
@@ -17,6 +18,7 @@ def get_next_page_or(default='main.index'):
     if not next_page or url_parse(next_page).netloc != '':
         next_page = url_for(default)
     return next_page
+
 
 def setup_logging(app):
     """
@@ -38,18 +40,12 @@ def setup_project():
     Method to setup project.
     """
     try:
-        #Creating Virtual Environment
-        run_out([sys.executable, "-m", "venv", "venv"], shell=True)
-        #Activating Virtual Environment
-        run_out(["venv/Scripts/activate"])
-        #Installing Dependencies
-        run_out([sys.executable, "-m", "pip", "install", "-r" "requirements.txt"], 
-                shell=True)
-        
         #Creating .env file
         env_data = '''FLASK_APP=project.py
-    SECRET_KEY=some-secret-key'''
-        open('.env', 'w').write(env_data)
+SECRET_KEY=some-secret-key'''
+        env_file = open('.env', 'w')
+        env_file.write(env_data)
+        env_data.close()
         
         #Initializing database
         run_out(["flask", "db", "migrate"], shell=True)
@@ -57,12 +53,29 @@ def setup_project():
         run_out(["flask", "db", "upgrade"], shell=True)
 
         #App dependencies
+        from app import db
         from app.models import User, Post, Message
+        
         #Creating Test Data
+        for i in range(1, 6):
+            u = User(username='U{}'.format(i), email='u{}@example.com'.format(i), about_me='User U{}'.format(i))
+            u.set_password('password')
+            db.session.add(u)
 
-    except subprocess.CalledProcessError as c:
-        print(c)
-        print(c.returncode)
+        for i in range(1, 6):
+            u = User.get_user('U{}'.format(i))
+            for j in range(1, 6):
+                p = Post(author=u, body='U{} post {}.'.format(i, j))
+                db.session.add(p)
+                time.sleep(5)
+                if i != j:
+                    u.follow(User.get_user('U{}'.format(j)))
+                    m = Message(sender=u,
+                                recipient=User.get_user('U{}'.format(j)),
+                                body='U{} {} message to U{}'.format(i, j, j))
+                    db.session.add(m)
+                            
+        db.session.commit()
     except Exception as e:
         print(e)
 

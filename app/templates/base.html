@@ -1,5 +1,13 @@
 {% extends 'bootstrap/base.html' %}
 
+{% block head %}
+    <meta charset="utf-8"/>
+    {% block styles %}
+        {{super()}}
+        <link rel="stylesheet" href="{{ url_for('static', filename='cssChat.css') }}">
+    {% endblock %}
+{% endblock %}
+
 {% block title %}
     {% if title %}{{ title }}{% endif %}
 {% endblock %}
@@ -47,8 +55,18 @@
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
     </div>
+    <div class="chat-sidebar">
+        <div class="sidebar-name">
+            <a href="javascript:register_popup('narayan-prusty', 'Narayan Prusty');">
+                <img width="30" height="30" src="" alt='Working'/>
+                <span>Narayan Prusty</span>
+            </a>
+        </div>
+    </div>
 {% endblock %}
+
 {% block scripts %}
-    {{ super() }}
+    {{super()}}
+    <script src="{{ url_for('static', filename='jsChat.js') }}"></script>
     {{ moment.include_moment() }}
 {% endblock %}

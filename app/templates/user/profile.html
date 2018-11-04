@@ -48,7 +48,6 @@
         (function(){
             $.getJSON(
                 $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
-                // Your AJAX route here
                 function(data) {
                     document.getElementById('followed_count').innerHTML = data.Following;
                     document.getElementById('follower_count').innerHTML = data.Followers;

@@ -138,37 +138,51 @@ class User(UserMixin, db.Model):
                     (follow_tab.c.followed_id == Post.user_id)).filter(
                         follow_tab.c.follower_id == self.id).order_by(Post.timestamp.desc())
    
-    def get_conversation_with(self, user, change_read=False, want_decend=True):
+    def get_conversation_with(self, user, change_read=False):
         """
         Returns Conversation with supplied user,
         changes read flag w.r.t change_read.
         """
         if self.id != user.id:
-            #Self --> User messages
-            mySide = list(self.msg_sent.filter_by(recipient_id=user.id).all())
-            #self <-- User messages
-            userSide = list(self.msg_received.filter_by(sender_id=user.id).all())
-            #Joinning two sides
-            conversation=sorted(mySide+userSide,
-                                key = lambda x: x.timestamp,
-                                reverse=want_decend)
+            conv = db.session.\
+                       execute("SELECT id "
+                               "FROM Message "
+                               "WHERE (recipient_id={0} and sender_id={1}) "
+                               " or (recipient_id={1} and sender_id={0})"
+                               "ORDER BY timestamp desc;".format(self.id, user.id))
+            #Parsing to list
+            conv = list([Message.query.get(i[0]) for i in conv])
+
             #If read flag is True then read flag on messges is changes
             if change_read:
-                for msg in conversation:
+                for msg in conv:
                     if msg.recipient_id == self.id:
                         Message.query.get(msg.id).is_read = True
                 db.session.commit()
-            return conversation
+            return conv
         return None
     
-    def get_unread_users(self):
+    def get_unread_users(self):#Not currently used
         """
         Returns all users from whom unread messages.
         """
         msg = Message.query.filter_by(recipient_id=self.id, is_read=False).all()
-        return list(set(list(
-            [User.query.get(int(m.sender_id)) for m in msg]
-        )))
+        return list(set([User.query.get(m.sender_id) for m in msg]))
+
+    def get_all_users(self):
+        """
+        Method to get all users with whom self is conversing.
+        """
+        id_set = db.session.\
+                    execute("SELECT DISTINCT sender_id, recipient_id "
+                            "FROM Message "
+                            "WHERE sender_id={0} or recipient_id={0};".format(self.id))
+        required = set()
+        for ii in id_set:
+            required.add(ii[0])
+            required.add(ii[1])
+        required.discard(self.id)
+        return list([User.query.get(ii) for ii in required])
 
     def send_msg(self, to, msgB):
         """
@@ -265,3 +279,13 @@ class Message(db.Model):
         return '<Message: {}>'.format(self.body)
 
 
+"""
+#Self --> User messages
+            mySide = list(self.msg_sent.filter_by(recipient_id=user.id).all())
+            #self <-- User messages
+            userSide = list(self.msg_received.filter_by(sender_id=user.id).all())
+            #Joinning two sides
+            conversation=sorted(mySide+userSide,
+                                key = lambda x: x.timestamp,
+                                reverse=want_decend)
+"""

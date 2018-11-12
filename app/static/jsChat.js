@@ -13,7 +13,6 @@ var popups = [];//arrays of popups ids
 function close_popup(id)
 {
     for(var iii = 0; iii < popups.length; iii++)
-    {
         if(id == popups[iii])
         {
             Array.remove(popups, iii);
@@ -21,7 +20,6 @@ function close_popup(id)
             calculate_popups();
             return;
         }
-    }  
 }
 
 //displays the popups. Displays based on the maximum number of popups that can be displayed on the current viewport width
@@ -30,7 +28,6 @@ function display_popups()
     var right = 220;
     var iii = 0;
     for(iii; iii < total_popups; iii++)
-    {
         if(popups[iii] != undefined)
         {
             var element = document.getElementById(popups[iii]);
@@ -38,7 +35,6 @@ function display_popups()
             right = right + 320;
             element.style.display = "block";
         }
-    }  
     for(var jjj = iii; jjj < popups.length; jjj++)
     {
         var element = document.getElementById(popups[jjj]);
@@ -50,21 +46,18 @@ function display_popups()
 function register_popup(id, name)
 {
     for(var iii = 0; iii < popups.length; iii++)
-    {  
-        //already registered. Bring it to front.
-        if(id == popups[iii])
+        if(id == popups[iii])//already registered. Bring it to front.
         {
             Array.remove(popups, iii);     
             popups.unshift(id);
             calculate_popups();
             return;
         }
-    }
-    var element = '<div class="popup-box chat-popup" id="'+ id +'">';
-    element = element + '<div class="popup-head">';
-    element = element + '<div class="popup-head-left">'+ name +'</div>';
-    element = element + '<div class="popup-head-right"><a href="javascript:close_popup(\''+ id +'\');">&#10005;</a></div>';
-    element = element + '<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
+    var element='<div class="popup-box chat-popup" id="'+ id +'">';
+    element+='<div class="popup-head">';
+    element+='<div class="popup-head-left">'+ name +'</div>';
+    element+='<div class="popup-head-right"><a href="javascript:close_popup(\''+ id +'\');">&#10005;</a></div>';
+    element+='<div style="clear: both"></div></div><div class="popup-messages"></div></div>';
     
     document.getElementsByTagName("body")[0].innerHTML = document.getElementsByTagName("body")[0].innerHTML + element;
 

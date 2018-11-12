@@ -35,6 +35,8 @@ class RegisterForm(FlaskForm):
         """
         if User.query.filter_by(username=username.data).first() is not None:
             raise ValidationError('Please use a different username.')
+        elif ' ' in username:
+            raise ValidationError('Blanck spaces not allowed in username')
 
     def validate_email(self, email):
         """

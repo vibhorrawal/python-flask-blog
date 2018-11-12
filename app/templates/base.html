@@ -55,19 +55,37 @@
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
     </div>
-    <div id='chat-sidebar'></div>
-    <div class="chat-sidebar">
-        <div class="sidebar-name">
-            <a href="javascript:register_popup('narayan-prusty', 'Narayan Prusty');">
-                <img width="30" height="30" src="" alt='Working'/>
-                <span>NP</span>
-            </a>
-        </div>
-    </div>
+
+    <div id='chatSidebar' class='chat-sidebar'></div>
+
 {% endblock %}
 
 {% block scripts %}
     {{super()}}
     <script src="{{ url_for('static', filename='jsChat.js') }}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/message/chat_list",
+                function(data) {
+                    var chat_ele = '';
+                    for(var i=0; i<data.length; ++i)
+                    {
+                        var u_name = data[i].name;
+                        var u_avatar = data[i].avatar;
+                        chat_ele+='<div class="sidebar-name">';
+                        chat_ele+='<a href="javascript:register_popup(\''+u_name+'\',\''+u_name+'\');">';
+                        chat_ele+='<img width="30" src="'+u_avatar+'" alt='+u_name+'/>';
+                        chat_ele+='<span>'+u_name+'</span>';
+                        chat_ele+='</a></div>';
+                    }
+                    document.getElementById('chatSidebar').innerHTML = chat_ele;
+                }
+            );
+            setTimeout(arguments.callee, 1500);
+        })();
+    </script>
     {{ moment.include_moment() }}
 {% endblock %}

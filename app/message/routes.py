@@ -1,3 +1,6 @@
+#Other dependencies
+import json
+
 #Flask and it's dependencies
 from flask import render_template, flash, abort
 from flask_login import current_user, login_required
@@ -34,3 +37,17 @@ def chat(With):
     return render_template('message/chat.html',
                             title=With.username,
                             chat=chat)
+
+
+@bp.route('/chat_list', methods=['GET'])
+@login_required
+def chat_list():
+    """
+    View function for Ajax call from js to retrive list of 
+    users, current_user is conversing with.
+    """
+    chat_dict = list()
+    for u in current_user.get_all_users():
+        chat_dict.append({'name': u.username, 'avatar': u.avatar(30)})    
+    return json.dumps(chat_dict)
+

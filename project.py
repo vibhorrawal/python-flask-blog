@@ -1,10 +1,13 @@
 #Python dependencies
 import sys
+import colorama
 
 #App dependencies
 from app import create_app, db
 from app.utility import setup_project
 from app.models import User, Post, Message
+
+colorama.init()
 
 app = create_app()
 

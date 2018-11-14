@@ -1,11 +1,60 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <table class="table table-hover">    
+    <div>
+    {% if chat %}
     {% for msg in chat %}
-        <tr><td>
-            <p>{{msg.body}}</p>
-        </td></tr>
+        {% if msg.sender_id == current_user.id %}
+        <div class="CHAT-container CHATdarker">
+            <!--
+            <img src="{{ current_user.avatar(60) }}" alt="{{ current_user.username }}" class="CHATright">
+            -->
+            <div style="float:right;">
+            <p>{% for m in msg.body.split('\n') %}
+            {{ m }}<br>
+            {% endfor %}</p>
+            </div>
+            <span class="CHATtime-left">{{ moment(msg.timestamp).fromNow() }}</span>
+        </div>
+        {% else %}
+        <div class="CHAT-container">
+            <img src="{{ With.avatar(60) }}" alt="{{ With.username }}">
+            <p>{{ msg.body }}</p>
+            <span class="CHATtime-right">{{ moment(msg.timestamp).fromNow() }}</span>
+        </div>
+        {% endif %}
     {% endfor %}
-    </table>
+    {% endif %}
+    </div>
+    <br>
+    <div style='position:absolute; bottom:0; width:79%'>
+        <form method="post">
+            <input type="text" class="form-control"
+                name="push_message_box" id="push_message_box" 
+                placeholder="@{{current_user.username}} says..." 
+                autofocus>
+            <br>
+            <span class="input-group-btn">
+                <button class="btn btn-info" type="submit" name="command">Send</button>
+            </span>
+        </form>
+        <br>
+    </div>
+    <!--
+    <script type=text/javascript>
+        var element = '';
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/message/get_chat/{{ title }}",
+                function(data) {
+                    
+                    document.getElementById('chat').innerHTML = element;
+                }
+            );
+            setTimeout(arguments.callee, 1500);
+        })();
+    </script>
+    -->
 {% endblock %}

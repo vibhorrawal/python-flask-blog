@@ -23,6 +23,8 @@ class Config(object):
     
     REMEMBER_COOKIE_DURATION = timedelta(minutes=1)
     
+    TEMPLATES_AUTO_RELOAD = True
+
     ADMINS = ['your-email@example.com', os.environ.get('ADMIN1')]
     
     POSTS_PER_PAGE = 5

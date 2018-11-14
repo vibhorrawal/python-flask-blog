@@ -149,7 +149,7 @@ class User(UserMixin, db.Model):
                                "FROM Message "
                                "WHERE (recipient_id={0} and sender_id={1}) "
                                " or (recipient_id={1} and sender_id={0})"
-                               "ORDER BY timestamp desc;".format(self.id, user.id))
+                               "ORDER BY timestamp;".format(self.id, user.id))
             #Parsing to list
             conv = list([Message.query.get(i[0]) for i in conv])
 
@@ -189,14 +189,16 @@ class User(UserMixin, db.Model):
         Method to send personal message from self to user.
         """
         if self.id != to.id:
-            last_msg = self.get_conversation_with(to)[0]
+            '''
+            last_msg = self.get_conversation_with(to)[-1]
             if last_msg.sender_id == self.id:#To add new text to last message, if it was of self
-                Message.query.get(int(last_msg.id)).body += ('\n'+msgB)
+                Message.query.get(int(last_msg.id)).body += ('\n<br>'+msgB)
             else:
-                m = Message(sender=self,
-                            recipient=to,
-                            body=msgB)
-                db.session.add(m)
+            '''
+            m = Message(sender=self,
+                        recipient=to,
+                        body=msgB)
+            db.session.add(m)
             db.session.commit()
 
     def update_last_seen(self, by=datetime.utcnow()):

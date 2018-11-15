@@ -1,3 +1,4 @@
+import json
 
 #Flask and it's dependencies
 from flask import render_template, flash, abort, request
@@ -15,7 +16,7 @@ def dashboard():
     """
     View function for private chat dashboard.
     """
-    unread_users = current_user.get_unread_users()
+    unread_users = current_user.get_all_users()
     return render_template('message/msg_dashboard.html',
                             title='Message Dashboard',
                             unread_users=unread_users)
@@ -38,10 +39,28 @@ def chat(With):
     if current_user.id == With.id:
         flash('You cannot chat with yourself.')
         abort(404)
-    chat = current_user.get_conversation_with(user=With)    
+    chat = current_user.get_conversation_with(user=With, change_read=True)    
     return render_template('message/chat.html',
                             title=With.username, chat=chat,
                             With=With)
+
+@bp.route('/new_msg/<With>', methods=['GET'])
+@login_required
+def new_msg(With):
+    '''
+    View function for Ajax call from js to retrive in the conversation.
+    '''
+    new_messages = list()
+    With = User.get_user(With)
+    for msg in current_user.get_new_conversation(With):
+        new_messages.append({'body': msg.body, 'timestamp': str(msg.timestamp)})    
+    return json.dumps(dict(
+        {
+            'messages': new_messages,
+            'username': With.username,
+            'avatar': With.avatar(30)
+        }
+    ))
 
 """
 @bp.route('/chat_list', methods=['GET'])

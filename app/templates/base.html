@@ -72,7 +72,54 @@
 
 {% endblock %}
 
-{% block scripts %}    
+{% block scripts %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    {% if user %}
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
+                function(data) {
+                    document.getElementById('followed_count').innerHTML = data.Following;
+                    document.getElementById('follower_count').innerHTML = data.Followers;
+                }
+            );
+            setTimeout(arguments.callee, 1500);
+        })();
+    </script>
+    {% endif %}
+    {% if not current_user.is_anonymous and With%}
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/message/new_msg/{{ With.username }}",
+                function(data) {
+                    var a = data.avatar;
+                    var b = data.username;
+                    var chat_ele = '';
+                    for(var i=0; i<data.messages.length; ++i)
+                    {
+                        var c = data.messages[i].body;
+                        var d = data.messages[i].timestamp;
+                        chat_ele += "<div class='CHAT-container'>";
+                        chat_ele += "<img src='"+a+"'";
+                        chat_ele += " alt='"+b+"'>";
+                        chat_ele += "<p>"+c+"</p>";
+                        chat_ele += "<span class='CHATtime-right'>";
+                        chat_ele += d+"</span>";
+                        chat_ele += "</div>";
+                    }
+                    console.log(chat_ele);
+                    document.getElementById('new-message').innerHTML = chat_ele;
+                }
+            );
+            setTimeout(arguments.callee, 1500);
+        })();
+    </script>
+    {% endif %}
+    {{ moment.include_moment() }}
     {{super()}}
     <!--
     <script src="{{ url_for('static', filename='jsChat.js') }}"></script>
@@ -101,5 +148,4 @@
         })();
     </script>
     -->
-    {{ moment.include_moment() }}
 {% endblock %}

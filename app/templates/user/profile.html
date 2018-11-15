@@ -15,18 +15,17 @@
                 <a href="{{ url_for('user.followed', username=user.username) }}" class='badge'>
                     <span id="followed_count"></span> following
                 </a>
+                <br><br>
                 {% if not current_user.is_anonymous %}
                     {% if user == current_user %}
                     <p><a href="">Edit your profile</a></p>
                     {% elif current_user.is_following(user) %}
                     <p><a href="{{ url_for('main.unfollow', username=user.username) }}">Unfollow</a></p>
                     {% else %}
-                    <br><br>
-                    <p>
+                    <p><a href="{{ url_for('main.follow', username=user.username) }}">Follow</a></p>
+                    {% endif %}
+                    {% if user != current_user %}
                     <a href="{{ url_for('message.chat', With=user.username) }}">Message</a>
-                    <br>
-                    <a href="{{ url_for('main.follow', username=user.username) }}">Follow</a>
-                    </p>
                     {% endif %}
                 {% endif %}
             </td>
@@ -47,18 +46,4 @@
             </li>
         </ul>
     </nav>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type=text/javascript>
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        (function(){
-            $.getJSON(
-                $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
-                function(data) {
-                    document.getElementById('followed_count').innerHTML = data.Following;
-                    document.getElementById('follower_count').innerHTML = data.Followers;
-                }
-            );
-            setTimeout(arguments.callee, 1200);
-        })();
-    </script>
 {% endblock %}

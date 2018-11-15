@@ -152,22 +152,31 @@ class User(UserMixin, db.Model):
                                "ORDER BY timestamp;".format(self.id, user.id))
             #Parsing to list
             conv = list([Message.query.get(i[0]) for i in conv])
-
-            #If read flag is True then read flag on messges is changes
+            #If read flag is True then read flag on messges is changed.
             if change_read:
                 for msg in conv:
-                    if msg.recipient_id == self.id:
+                    if msg.is_read == False and msg.recipient_id == self.id:
                         Message.query.get(msg.id).is_read = True
                 db.session.commit()
             return conv
         return None
-    
-    def get_unread_users(self):#Not currently used
+
+    def get_new_conversation(self, With):
         """
-        Returns all users from whom unread messages.
+        Getting new messages from 'With' user.
         """
-        msg = Message.query.filter_by(recipient_id=self.id, is_read=False).all()
-        return list(set([User.query.get(m.sender_id) for m in msg]))
+        if self.id != With.id:
+            conv = db.session.\
+                       execute("SELECT id "
+                               "FROM Message "
+                               "WHERE"
+                               " ((recipient_id={0} and sender_id={1}) "
+                               " OR (recipient_id={1} and sender_id={0}))"
+                               " AND is_read=0"
+                               " ORDER BY timestamp;".format(self.id, With.id))
+            #Parsing to list
+            return list([Message.query.get(i[0]) for i in conv])
+        return None
 
     def get_all_users(self):
         """
@@ -189,12 +198,6 @@ class User(UserMixin, db.Model):
         Method to send personal message from self to user.
         """
         if self.id != to.id:
-            '''
-            last_msg = self.get_conversation_with(to)[-1]
-            if last_msg.sender_id == self.id:#To add new text to last message, if it was of self
-                Message.query.get(int(last_msg.id)).body += ('\n<br>'+msgB)
-            else:
-            '''
             m = Message(sender=self,
                         recipient=to,
                         body=msgB)

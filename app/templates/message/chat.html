@@ -7,9 +7,6 @@
     {% for msg in chat %}
         {% if msg.sender_id == current_user.id %}
         <div class="CHAT-container CHATdarker">
-            <!--
-            <img src="{{ current_user.avatar(60) }}" alt="{{ current_user.username }}" class="CHATright">
-            -->
             <div style="float:right;">
             <p>{% for m in msg.body.split('\n') %}
             {{ m }}<br>
@@ -20,15 +17,18 @@
         {% else %}
         <div class="CHAT-container">
             <img src="{{ With.avatar(60) }}" alt="{{ With.username }}">
-            <p>{{ msg.body }}</p>
+            <p>{% for m in msg.body.split('\n') %}
+            {{ m }}<br>
+            {% endfor %}</p>
             <span class="CHATtime-right">{{ moment(msg.timestamp).fromNow() }}</span>
         </div>
         {% endif %}
     {% endfor %}
     {% endif %}
+        <div id='new-message'></div>
     </div>
     <br>
-    <div style='position:absolute; bottom:0; width:79%'>
+    <div style='bottom:0'>
         <form method="post">
             <input type="text" class="form-control"
                 name="push_message_box" id="push_message_box" 
@@ -41,20 +41,6 @@
         </form>
         <br>
     </div>
-    <!--
-    <script type=text/javascript>
-        var element = '';
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        (function(){
-            $.getJSON(
-                $SCRIPT_ROOT+"/message/get_chat/{{ title }}",
-                function(data) {
-                    
-                    document.getElementById('chat').innerHTML = element;
-                }
-            );
-            setTimeout(arguments.callee, 1500);
-        })();
-    </script>
-    -->
 {% endblock %}
+
+<!--position:absolute; -->

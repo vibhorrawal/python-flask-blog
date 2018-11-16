@@ -3,11 +3,14 @@ import json
 
 #Flask and it's dependencies
 from flask import render_template, url_for,\
-                  request, current_app, abort
+                  request, current_app, abort, \
+                  flash, redirect
 from flask_login import current_user, login_required
 
 #App dependencies
 from app.user import bp
+from app.user.forms import EditProfileForm
+
 from app.models import User, Post
 
 @bp.route('/<username>')
@@ -45,15 +48,6 @@ def _ffCount(username):
         'Followers': user.get_followers_count()
     })
 
-@bp.route('/messages')
-@login_required
-def messages():
-    """
-    View function to List all active conversation.
-    """
-    unread_users = current_user.get_unread_user()
-    return render_template('user/messages.html', users=users)
-
 @bp.route('/followers/<username>')
 def followers(username):
     """
@@ -72,3 +66,16 @@ def followed(username):
     users = u.get_followed()
     return render_template('user/followed.html', user=u, users=users)
 
+@bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm(current_user.username)
+    if form.validate_on_submit():
+        current_user.set_about(form.username.data, form.about_me.data)
+        flash('Your changes have been saved.')
+        return redirect(url_for('user.edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('user/edit_profile.html', title='Edit Profile',
+                           form=form)

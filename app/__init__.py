@@ -1,3 +1,8 @@
+#Python dependencies
+import os
+import logging
+from logging.handlers import RotatingFileHandler
+
 #Flask and it's dependencies
 from flask import Flask, request, current_app
 from flask_mail import Mail
@@ -7,13 +12,13 @@ from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 
-#Project dependencies
-from .utility import setup_logging 
-
 #Application Confirigation object
 from config import Config
 
+#Module Metadata
+__version__ = '0.1d'
 
+#Flask Extentions Objects
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
@@ -51,9 +56,16 @@ def create_app(appConfig=Config):
     from app.message import bp as message_bp
     app.register_blueprint(message_bp, url_prefix='/message')
 
-    setup_logging(app)
-
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    f_handle = RotatingFileHandler('logs/project.log', maxBytes=20480, backupCount=20)
+    f_handle.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    f_handle.setLevel(logging.DEBUG)
+    app.logger.addHandler(f_handle)
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.info('Project Server startup')
+    
     return app
 
 from app import models
-

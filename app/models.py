@@ -54,6 +54,11 @@ class User(UserMixin, db.Model):
                                    backref='recipient', lazy='dynamic')
 
 
+    def set_about(self, new_username, new_about_me):
+        self.username = new_username
+        self.about_me = new_about_me
+        db.session.commit()
+
     def get_post(self):
         """
         Method to get post by user.

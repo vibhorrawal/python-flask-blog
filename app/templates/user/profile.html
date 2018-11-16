@@ -18,7 +18,7 @@
                 <br><br>
                 {% if not current_user.is_anonymous %}
                     {% if user == current_user %}
-                    <p><a href="">Edit your profile</a></p>
+                    <p><a href="{{ url_for('user.edit_profile') }}">Edit your profile</a></p>
                     {% elif current_user.is_following(user) %}
                     <p><a href="{{ url_for('main.unfollow', username=user.username) }}">Unfollow</a></p>
                     {% else %}

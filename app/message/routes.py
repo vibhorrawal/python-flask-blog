@@ -5,6 +5,7 @@ from flask import render_template, flash, abort, request
 from flask_login import current_user, login_required
 
 #App dependencies
+from app.utility import format_datetime
 from app.models import User
 
 #Module blueprint
@@ -53,7 +54,12 @@ def new_msg(With):
     new_messages = list()
     With = User.get_user(With)
     for msg in current_user.get_new_conversation(With):
-        new_messages.append({'body': msg.body, 'timestamp': str(msg.timestamp)})    
+        new_messages.append(
+            {
+                'body': msg.body,
+                'timestamp': format_datetime(msg.timestamp, format='from-now')
+            }
+        )    
     return json.dumps(dict(
         {
             'messages': new_messages,

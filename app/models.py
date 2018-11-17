@@ -181,6 +181,10 @@ class User(UserMixin, db.Model):
                                " ORDER BY timestamp;".format(self.id, With.id))
             #Parsing to list
             return list([Message.query.get(i[0]) for i in conv])
+            for msg in conv:
+                if msg.is_read == False and msg.recipient_id == self.id:
+                    Message.query.get(msg.id).is_read = True
+            db.session.commit()
         return None
 
     def get_all_users(self):

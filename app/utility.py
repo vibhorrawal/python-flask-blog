@@ -60,8 +60,10 @@ SECRET_KEY=some-secret-key'''
 
 def format_datetime(original_time, format=''):
     time_delta = dt.datetime.utcnow() - original_time
-    days = time_delta.days
     seconds = time_delta.seconds
+    if seconds<60:
+        return "few seconds ago."
+    days = time_delta.days
     if format == 'from-now':
         # > 2 Year
         if days >= 730: return "{} years ago.".format(days//365)

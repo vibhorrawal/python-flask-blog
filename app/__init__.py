@@ -66,6 +66,8 @@ def create_app(appConfig=Config):
     app.logger.setLevel(logging.DEBUG)
     app.logger.info('Project Server startup')
     
+
+
     return app
 
 from app import models

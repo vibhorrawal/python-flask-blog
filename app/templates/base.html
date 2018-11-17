@@ -81,8 +81,8 @@
             $.getJSON(
                 $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
                 function(data) {
-                    document.getElementById('followed_count').innerHTML = data.Following;
-                    document.getElementById('follower_count').innerHTML = data.Followers;
+                    document.getElementById('followed-count').innerHTML = data.Following;
+                    document.getElementById('follower-count').innerHTML = data.Followers;
                 }
             );
             setTimeout(arguments.callee, 1500);
@@ -111,7 +111,6 @@
                         chat_ele += d+"</span>";
                         chat_ele += "</div>";
                     }
-                    console.log(chat_ele);
                     document.getElementById('new-message').innerHTML = chat_ele;
                 }
             );
@@ -119,33 +118,50 @@
         })();
     </script>
     {% endif %}
-    {{ moment.include_moment() }}
-    {{super()}}
-    <!--
-    <script src="{{ url_for('static', filename='jsChat.js') }}"></script>
-    
-        <script type=text/javascript>
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        (function(){
-            $.getJSON(
-                $SCRIPT_ROOT+"/message/chat_list",
-                function(data) {
-                    var chat_ele = '';
-                    for(var i=0; i<data.length; ++i)
-                    {
-                        var u_name = data[i].name;
-                        var u_avatar = data[i].avatar;
-                        chat_ele+='<div class="sidebar-name">';
-                        chat_ele+='<a href="javascript:register_popup(\''+u_name+'\',\''+u_name+'\');">';
-                        chat_ele+='<img width="30" src="'+u_avatar+'" alt='+u_name+'/>';
-                        chat_ele+='<span>'+u_name+'</span>';
-                        chat_ele+='</a></div>';
+    <script type=text/javascript>
+        $(function () {
+            var timer = null;
+            var xhr = null;
+            $('.user_popup').hover(
+                function(event) {
+                    // mouse in event handler
+                    var elem = $(event.currentTarget);
+                    timer = setTimeout(function() {
+                        timer = null;
+                        xhr = $.ajax(
+                            '/user/' + elem.first().text().trim() + '/popup').done(
+                                function(data) {
+                                    xhr = null;
+                                    elem.popover({
+                                        trigger: 'manual',
+                                        html: true,
+                                        animation: false,
+                                        container: elem,
+                                        content: data
+                                    }).popover('show');
+                                    flask_moment_render_all();
+                                }
+                            );
+                    }, 1500);
+                },
+                function(event) {
+                    // mouse out event handler
+                    var elem = $(event.currentTarget);
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
                     }
-                    document.getElementById('chatSidebar').innerHTML = chat_ele;
+                    else if (xhr) {
+                        xhr.abort();
+                        xhr = null;
+                    }
+                    else {
+                        elem.popover('destroy');
+                    }
                 }
             );
-            setTimeout(arguments.callee, 1500);
-        })();
+        });
     </script>
-    -->
+    {{ moment.include_moment() }}
+    {{super()}}
 {% endblock %}

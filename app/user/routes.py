@@ -54,6 +54,8 @@ def followers(username):
     View function to list all followers of a user.
     """
     u = User.get_user(username)
+    if u is None:
+        abort(404)
     users = u.get_followers()
     return render_template('user/followers.html', user=u, users=users)
 
@@ -63,6 +65,8 @@ def followed(username):
     View function to list all followed people of a user.
     """
     u = User.get_user(username)
+    if u is None:
+        abort(404)
     users = u.get_followed()
     return render_template('user/followed.html', user=u, users=users)
 
@@ -79,3 +83,12 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('user/edit_profile.html', title='Edit Profile',
                            form=form)
+
+@bp.route('/<username>/popup')
+@login_required
+def user_popup(username):
+    user = User.get_user(username)
+    if user is None:
+        flash('User not found.')
+        abort(404)
+    return render_template('user/popup.html', user=user)

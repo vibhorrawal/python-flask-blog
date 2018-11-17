@@ -1,7 +1,7 @@
 #Python dependencies
 import os
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import RotatingFileHandler, SMTPHandler
 
 #Flask and it's dependencies
 from flask import Flask, request, current_app
@@ -61,13 +61,24 @@ def create_app(appConfig=Config):
     f_handle = RotatingFileHandler('logs/project.log', maxBytes=20480, backupCount=20)
     f_handle.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-    f_handle.setLevel(logging.DEBUG)
+    f_handle.setLevel(logging.ERROR)
     app.logger.addHandler(f_handle)
-    app.logger.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.ERROR)
     app.logger.info('Project Server startup')
-    
-
-
+    if app.config['MAIL_SERVER']:
+        auth = None
+        if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
+            auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+        secure = None
+        if app.config['MAIL_USE_TLS']:
+            secure = ()
+        mail_handler = SMTPHandler(
+            mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+            toaddrs=app.config['ADMINS'], subject='Microblog Failure',
+            credentials=auth, secure=secure)
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
     return app
 
 from app import models

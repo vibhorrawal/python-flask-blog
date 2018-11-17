@@ -1,9 +1,12 @@
 #Other dependencies
+import jwt
 import random
+from time import time
 from hashlib import md5
 from datetime import datetime
 
 #Flask and it's Dependencies
+from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -143,6 +146,21 @@ class User(UserMixin, db.Model):
                     (follow_tab.c.followed_id == Post.user_id)).filter(
                         follow_tab.c.follower_id == self.id).order_by(Post.timestamp.desc())
    
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'],
+            algorithm='HS256').decode('utf-8')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
+
     def get_conversation_with(self, user, change_read=False):
         """
         Returns Conversation with supplied user,

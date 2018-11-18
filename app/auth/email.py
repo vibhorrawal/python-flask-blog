@@ -17,5 +17,6 @@ def send_password_reset_email(user):
             token=token
         ),
         html_body=render_template('email/reset_password.html',
-        user=user, token=token)
+        user=user,
+        token=token)
     )

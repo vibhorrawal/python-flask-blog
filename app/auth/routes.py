@@ -1,5 +1,5 @@
 #Flask dependencies
-from flask import render_template, redirect, url_for, flash, abort
+from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 
 #App dependencies
@@ -71,8 +71,8 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
         else:
-            flash('User not found')
-            abort(404)
+            flash('Email is not registered.')
+            return redirect(url_for('auth.register'))
         flash('Check your email for the instructions to reset your password')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html',

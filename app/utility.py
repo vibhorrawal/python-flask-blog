@@ -21,7 +21,9 @@ def setup_project():
     try:
         #Creating .env file
         env_data = '''FLASK_APP=project.py
-SECRET_KEY=some-secret-key'''
+SECRET_KEY=some-secret-key
+MAIL_SERVER=localhost
+MAIL_PORT=8025'''
         env_file = open('.env', 'w')
         env_file.write(env_data)
         env_data.close()

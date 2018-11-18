@@ -85,7 +85,6 @@ def edit_profile():
                            form=form)
 
 @bp.route('/<username>/popup')
-@login_required
 def user_popup(username):
     user = User.get_user(username)
     if user is None:

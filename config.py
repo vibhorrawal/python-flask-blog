@@ -23,6 +23,8 @@ class Config(object):
     
     REMEMBER_COOKIE_DURATION = timedelta(days=1)
     
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+
     TEMPLATES_AUTO_RELOAD = True
 
     ADMINS = ['your-email@example.com', os.environ.get('ADMIN1')]

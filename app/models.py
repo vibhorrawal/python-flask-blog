@@ -248,6 +248,7 @@ class User(UserMixin, db.Model):
                 if msg.is_read == False and msg.recipient_id == self.id:
                     Message.query.get(msg.id).is_read = True
             db.session.commit()
+            return conv
         return None
 
     def get_all_users(self):
@@ -275,6 +276,9 @@ class User(UserMixin, db.Model):
                         body=msgB)
             db.session.add(m)
             db.session.commit()
+
+    def get_unread_msg_count(self):
+        return self.msg_received.filter_by(is_read=False).count()
 
     def update_last_seen(self, by=datetime.utcnow()):
         """

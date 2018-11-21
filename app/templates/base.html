@@ -51,7 +51,11 @@
                         {{ current_user.username }}
                         </a>
                     </li>
-                    <li><a href="{{ url_for('message.dashboard') }}">Message</a></li>
+                    <li>
+                    <a href="{{ url_for('message.dashboard') }}">Message
+                    <span class='badge' id='unread-msg-count'></span>
+                    </a>
+                    </li>
                     <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
                     {% endif %}
                 </ul>
@@ -80,9 +84,10 @@
 
 {% block scripts %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    {% if user %}
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        
+        {% if user %}
         (function(){
             $.getJSON(
                 $SCRIPT_ROOT+"/user/_ffCount/{{ user.username }}",
@@ -93,11 +98,9 @@
             );
             setTimeout(arguments.callee, 1500);
         })();
-    </script>
-    {% endif %}
-    {% if not current_user.is_anonymous and With%}
-    <script type=text/javascript>
-        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        {% endif %}
+        
+        {% if not current_user.is_anonymous and With%}
         (function(){
             $.getJSON(
                 $SCRIPT_ROOT+"/message/new_msg/{{ With.username }}",
@@ -122,9 +125,20 @@
             );
             setTimeout(arguments.callee, 1500);
         })();
-    </script>
-    {% endif %}
-    <script type=text/javascript>
+        {% endif %}
+        
+        {% if not current_user.is_anonymous%}
+        (function(){
+            $.getJSON(
+                $SCRIPT_ROOT+"/message/new_msg_count/",
+                function(data) {
+                    document.getElementById('unread-msg-count').innerHTML = data.value;
+                }
+            );
+            setTimeout(arguments.callee, 1500);
+        })();
+        {% endif %}
+
         $(function () {
             var timer = null;
             var xhr = null;

@@ -68,16 +68,13 @@ def new_msg(With):
         }
     ))
 
-"""
-@bp.route('/chat_list', methods=['GET'])
+@bp.route('/new_msg_count/', methods=['GET'])
 @login_required
-def chat_list():
+def new_msg_count():
     '''
-    View function for Ajax call from js to retrive list of 
-    users, current_user is conversing with.
+    View function for Ajax call from js to retrive number of unread messages.
     '''
-    chat_dict = list()
-    for u in current_user.get_all_users():
-        chat_dict.append({'name': u.username, 'avatar': u.avatar(30)})    
-    return json.dumps(chat_dict)
-"""
+    return json.dumps(dict({
+            'value': current_user.get_unread_msg_count()
+        })
+    )

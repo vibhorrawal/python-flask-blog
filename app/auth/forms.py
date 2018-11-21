@@ -17,11 +17,20 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+
+    def validate_email(self, email):
+        """
+        Method to validate if email already do not exist.
+        """
+        if User.query.filter_by(email=email.data).first() is not None:
+            raise ValidationError('Please use a different email address.')    
+
+class CompleteRegisterationForm(FlaskForm):
     """
     class to manage User registration form.
     """
     username = StringField('Username', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password',
@@ -38,12 +47,6 @@ class RegisterForm(FlaskForm):
         elif ' ' in username.data:
             raise ValidationError('Blanck spaces not allowed in username')
 
-    def validate_email(self, email):
-        """
-        Method to validate if email already do not exist.
-        """
-        if User.query.filter_by(email=email.data).first() is not None:
-            raise ValidationError('Please use a different email address.')
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])

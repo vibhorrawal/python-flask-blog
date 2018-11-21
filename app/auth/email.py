@@ -3,6 +3,7 @@ from flask import render_template, current_app
 
 #App dependencies
 from app.email import send_email
+from app.auth.utility import get_email_confirmation_token
 
 
 def send_password_reset_email(user):
@@ -18,5 +19,21 @@ def send_password_reset_email(user):
         ),
         html_body=render_template('email/reset_password.html',
         user=user,
+        token=token)
+    )
+
+def send_email_confirmation_mail(user_email):
+    token = get_email_confirmation_token(user_email)
+    send_email(
+        '[Umhera] Confirm your email.',
+        sender=current_app.config['ADMINS'][0],
+        recipients=[user_email],
+        text_body=render_template(
+            'email/confirm_email.txt',
+            email=user_email,
+            token=token
+        ),
+        html_body=render_template('email/confirm_email.html',
+        email=user_email,
         token=token)
     )

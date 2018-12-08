@@ -16,9 +16,31 @@ from app.search import add_to_index, remove_from_index, query_index
 
 
 class SearchableMixin(object):
+    """
+    Class to manage Full text search for app.
+    """
     @classmethod
     def search(cls, expression, page, per_page):
-        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        """
+        Actual search method for every class that class the search engine method
+        """
+        if current_app.config['ELASTICSEARCH_URL']:
+            ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        else:
+            idss = db.session.\
+                execute(
+                    "SELECT id FROM "+cls.__tablename__+" "
+                    "WHERE "+cls.__searchable__[0]+" "
+                    "LIKE '%"+expression+"%'; "
+                )
+            ids = list([i[0] for i in idss])
+            del idss
+            total = db.session.\
+                execute(
+                    "SELECT COUNT(*) FROM "+cls.__tablename__+" "
+                    "WHERE "+cls.__searchable__[0]+" "
+                    "LIKE '%"+expression+"%'; "
+                ).first()[0]
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []
@@ -243,7 +265,7 @@ class User(UserMixin, db.Model):
                                " AND is_read=0"
                                " ORDER BY timestamp;".format(self.id, With.id))
             #Parsing to list
-            return list([Message.query.get(i[0]) for i in conv])
+            conv = list([Message.query.get(i[0]) for i in conv])
             for msg in conv:
                 if msg.is_read == False and msg.recipient_id == self.id:
                     Message.query.get(msg.id).is_read = True

@@ -26,6 +26,8 @@ class Config(object):
     
     REMEMBER_COOKIE_DURATION = timedelta(days=1)
     
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
+
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
     TEMPLATES_AUTO_RELOAD = True

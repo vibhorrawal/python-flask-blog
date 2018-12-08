@@ -35,7 +35,6 @@ def profile(username):
                            next_url=next_url, prev_url=prev_url)
 
 @bp.route('/_ffCount/<username>', methods=['GET'])
-@login_required
 def _ffCount(username):
     """
     View function for Ajax call from js.

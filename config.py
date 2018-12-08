@@ -1,15 +1,18 @@
+#Flask dependencies
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+#Loading environment variables
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
+    """
+    Class to manage project confirigation.
+    """
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    
-    FLASK_ENV = 'development'
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')

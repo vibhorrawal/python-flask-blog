@@ -3,9 +3,6 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler, SMTPHandler
 
-#Other dependencies
-from elasticsearch import Elasticsearch
-
 #Flask and it's dependencies
 from flask import Flask, request, current_app
 from flask_mail import Mail
@@ -44,8 +41,13 @@ def create_app(appConfig=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
 
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
-        if app.config['ELASTICSEARCH_URL'] else None
+    
+    if app.config['ELASTICSEARCH_URL']:
+        from elasticsearch import Elasticsearch
+        app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']])
+    else:
+        app.elasticsearch = None
+
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)

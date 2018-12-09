@@ -23,4 +23,4 @@ if __name__ == "__main__" and sys.argv[1]:
     else:
         pass
 else:
-    print('Command Line Argument Missing')
+    app.run(threaded=True)

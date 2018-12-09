@@ -1,1 +1,1 @@
-web: python project.py db upgrade; gunicorn project:app;
+web: python project.py db upgrade; python project.py run;

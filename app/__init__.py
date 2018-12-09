@@ -64,15 +64,20 @@ def create_app(appConfig=Config):
     from app.message import bp as message_bp
     app.register_blueprint(message_bp, url_prefix='/message')
 
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    f_handle = RotatingFileHandler('logs/project.log', maxBytes=20480, backupCount=20)
-    f_handle.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    if app.config['LOG_TO_STDOUT']:
+        f_handle = logging.StreamHandler()
+    else:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        f_handle = RotatingFileHandler('logs/project.log', maxBytes=20480, backupCount=20)
+        f_handle.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+        
     f_handle.setLevel(logging.ERROR)
     app.logger.addHandler(f_handle)
     app.logger.setLevel(logging.ERROR)
     app.logger.info('Project Server startup')
+    
     if app.config['MAIL_SERVER']:
         auth = None
         if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:

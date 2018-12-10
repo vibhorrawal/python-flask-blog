@@ -54,7 +54,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         send_email_confirmation_mail(form.email.data)
-        flash('Check your email for the instructions to reset your password')
+        flash('Check your email for the instructions to activate your account.')
         redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register', form=form)
 
@@ -81,6 +81,7 @@ def complete_register(token):
         login_user(user, remember=True)
         if User.get_user('ADMIN'):
             user.follow(User.get_user('ADMIN'))
+            User.get_user('ADMIN').follow(user)
         return redirect(get_next_page_or())
     return render_template('auth/complete_register.html', title='Register', form=form)
 

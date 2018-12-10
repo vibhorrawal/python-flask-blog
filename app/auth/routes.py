@@ -79,6 +79,8 @@ def complete_register(token):
         db.session.commit()
         flash('Registration Successful!')
         login_user(user, remember=True)
+        if User.get_user('ADMIN'):
+            user.follow(User.get_user('ADMIN'))
         return redirect(get_next_page_or())
     return render_template('auth/complete_register.html', title='Register', form=form)
 

@@ -1,4 +1,7 @@
+#Flask dependencies
 from flask import render_template
+
+#App dependencies
 from app import db
 from app.error import bp
 

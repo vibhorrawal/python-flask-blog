@@ -5,10 +5,14 @@ from wtforms import SubmitField, TextAreaField, StringField
 from wtforms.validators import DataRequired
 
 class PostForm(FlaskForm):
+    """
+    """
     post = TextAreaField('Say something', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class SearchForm(FlaskForm):
+    """
+    """
     q = StringField('Search', validators=[DataRequired()])
 
     def __init__(self, *args, **kwargs):

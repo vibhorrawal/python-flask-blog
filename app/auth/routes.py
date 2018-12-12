@@ -88,6 +88,9 @@ def complete_register(token):
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
+    """
+    View function for reset password request.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
@@ -97,7 +100,7 @@ def reset_password_request():
             send_password_reset_email(user)
             flash('Check your email for the instructions to reset your password')
         else:
-            flash('Email is not registered.')
+            flash('Email is not registered, please register first')
             return redirect(url_for('auth.register'))
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html',
@@ -106,6 +109,9 @@ def reset_password_request():
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    """
+    View function for reset password page.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_password_token(token)
@@ -118,4 +124,4 @@ def reset_password(token):
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password.html', form=form)
+    return render_template('auth/reset_password.html', title='Reset Password', form=form)

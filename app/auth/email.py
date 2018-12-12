@@ -7,6 +7,9 @@ from app.auth.utility import get_email_confirmation_token
 
 
 def send_password_reset_email(user):
+    """
+    Methos to send password reset email
+    """
     token = user.get_reset_password_token()
     send_email(
         '[Umhera] Reset Your Password',
@@ -23,6 +26,9 @@ def send_password_reset_email(user):
     )
 
 def send_email_confirmation_mail(user_email):
+    """
+    Method to generate and send email confirmation mail.
+    """
     token = get_email_confirmation_token(user_email)
     send_email(
         '[Umhera] Confirm your email.',

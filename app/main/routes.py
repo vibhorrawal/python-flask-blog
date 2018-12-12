@@ -87,6 +87,3 @@ def unfollow(username):
     current_user.unfollow(user)
     flash('You are no longer following {}.'.format(user.username))
     return redirect(url_for('user.profile', username=username))
-
-
-

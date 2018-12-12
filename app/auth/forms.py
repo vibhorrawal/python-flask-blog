@@ -17,6 +17,9 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
+    """
+    Class to manage initial registration form.
+    """
     email = StringField('Email', validators=[DataRequired(), Email()])
 
     def validate_email(self, email):
@@ -28,7 +31,7 @@ class RegisterForm(FlaskForm):
 
 class CompleteRegisterationForm(FlaskForm):
     """
-    class to manage User registration form.
+    class to manage User registration form.(After email confirmation)
     """
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -45,15 +48,21 @@ class CompleteRegisterationForm(FlaskForm):
         if User.query.filter_by(username=username.data).first() is not None:
             raise ValidationError('Please use a different username.')
         elif ' ' in username.data:
-            raise ValidationError('Blanck spaces not allowed in username')
+            raise ValidationError('Blank spaces not allowed in username.')
 
 
 class ResetPasswordRequestForm(FlaskForm):
+    """
+    class to manage reset password request form.
+    """
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
 
 
 class ResetPasswordForm(FlaskForm):
+    """
+    Form for reset password.
+    """
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
                     'Repeat Password',

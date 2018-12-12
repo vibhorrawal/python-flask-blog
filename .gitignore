@@ -24,3 +24,4 @@ notes.txt
 *.exe
 PPT.pptx
 image.jpg
+.gitignore

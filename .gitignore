@@ -17,6 +17,7 @@ app/main/__pycache__
 
 #Database
 app.db
+blog.db
 
 #Other files
 test.py

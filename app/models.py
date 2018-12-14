@@ -11,72 +11,8 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 #App dependencies
-from app import db, login
-from app.search import add_to_index, remove_from_index, query_index
-
-
-class SearchableMixin(object):
-    """
-    Class to manage Full text search for app.
-    """
-    @classmethod
-    def search(cls, expression, page, per_page):
-        """
-        Actual search method for every class that class the search engine method
-        """
-        if current_app.config['ELASTICSEARCH_URL']:
-            ids, total = query_index(cls.__tablename__, expression, page, per_page)
-        else:
-            idss = db.session.\
-                execute(
-                    "SELECT id FROM "+cls.__tablename__+" "
-                    "WHERE "+cls.__searchable__[0]+" "
-                    "LIKE '%"+expression+"%'; "
-                )
-            ids = list([i[0] for i in idss])
-            del idss
-            total = db.session.\
-                execute(
-                    "SELECT COUNT(*) FROM "+cls.__tablename__+" "
-                    "WHERE "+cls.__searchable__[0]+" "
-                    "LIKE '%"+expression+"%'; "
-                ).first()[0]
-        if total == 0:
-            return cls.query.filter_by(id=0), 0
-        when = []
-        for i in range(len(ids)):
-            when.append((ids[i], i))
-        return cls.query.filter(cls.id.in_(ids)).order_by(
-            db.case(when, value=cls.id)), total
-
-    @classmethod
-    def before_commit(cls, session):
-        session._changes = {
-            'add': list(session.new),
-            'update': list(session.dirty),
-            'delete': list(session.deleted)
-        }
-
-    @classmethod
-    def after_commit(cls, session):
-        for obj in session._changes['add']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['update']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['delete']:
-            if isinstance(obj, SearchableMixin):
-                remove_from_index(obj.__tablename__, obj)
-        session._changes = None
-
-    @classmethod
-    def reindex(cls):
-        for obj in cls.query:
-            add_to_index(cls.__tablename__, obj)
-
-db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
+from app import db, login, blogging
+from app.search import SearchableMixin
 
 
 """
@@ -234,21 +170,24 @@ class User(UserMixin, db.Model):
         changes read flag w.r.t change_read.
         """
         if self.id != user.id:
-            conv = db.session.\
-                       execute("SELECT id "
-                               "FROM Message "
-                               "WHERE (recipient_id={0} and sender_id={1}) "
-                               " or (recipient_id={1} and sender_id={0})"
-                               "ORDER BY timestamp;".format(self.id, user.id))
-            #Parsing to list
-            conv = list([Message.query.get(i[0]) for i in conv])
+            conv = db.\
+            session.execute(
+                "SELECT id "
+                "FROM Message "
+                "WHERE (recipient_id={0} and sender_id={1}) "
+                " or (recipient_id={1} and sender_id={0})"
+                "ORDER BY timestamp;".format(self.id, user.id)
+            )
             #If read flag is True then read flag on messges is changed.
             if change_read:
-                for msg in conv:
-                    if msg.is_read == False and msg.recipient_id == self.id:
-                        Message.query.get(msg.id).is_read = True
-                db.session.commit()
-            return conv
+                db.session.execute(
+                    "UPDATE Message "
+                    "SET is_read=1 "
+                    "WHERE recipient_id={0} and sender_id={1};"\
+                    .format(self.id, user.id)
+                )
+            #Parsing to list
+            return list([Message.query.get(i[0]) for i in conv])
         return None
 
     def get_new_conversation(self, With):
@@ -256,21 +195,18 @@ class User(UserMixin, db.Model):
         Getting new messages from 'With' user.
         """
         if self.id != With.id:
-            conv = db.session.\
-                       execute("SELECT id "
-                               "FROM Message "
-                               "WHERE"
-                               " ((recipient_id={0} and sender_id={1}) "
-                               " OR (recipient_id={1} and sender_id={0}))"
-                               " AND is_read=0"
-                               " ORDER BY timestamp;".format(self.id, With.id))
+            conv = db.\
+            session.execute(
+                "SELECT id "
+                "FROM Message "
+                "WHERE"
+                " recipient_id={0} and sender_id={1}"
+                " AND is_read=0"
+                " ORDER BY timestamp;"\
+                .format(self.id, With.id)
+            )
             #Parsing to list
-            conv = list([Message.query.get(i[0]) for i in conv])
-            for msg in conv:
-                if msg.is_read == False and msg.recipient_id == self.id:
-                    Message.query.get(msg.id).is_read = True
-            db.session.commit()
-            return conv
+            return list([Message.query.get(i[0]) for i in conv])
         return None
 
     def get_all_users(self):
@@ -324,6 +260,7 @@ class User(UserMixin, db.Model):
 
 
 @login.user_loader
+@blogging.user_loader
 def load_user(id):
     """
     Method to load User

@@ -11,6 +11,7 @@ from flask_moment import Moment
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_blogging import BloggingEngine, SQLAStorage
 
 #Application Confirigation object
 from config import Config
@@ -24,6 +25,7 @@ moment = Moment()
 db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
+blogging = BloggingEngine()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please log in for further access.'
@@ -40,6 +42,7 @@ def create_app(appConfig=Config):
     mail.init_app(app)
     bootstrap.init_app(app)
     moment.init_app(app)
+    #blogging.init_app(app, SQLAStorage(db=db))
 
     
     if app.config['ELASTICSEARCH_URL']:

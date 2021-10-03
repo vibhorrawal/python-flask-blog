@@ -18,12 +18,13 @@ Run following comands in windows terminal(For Windows 7 and above).
     flask db migrate
     flask db upgrade
     
+    
 
 ### Run Project
 
 In first terminal
 
-    python -m smtpd -n -c DebuggingServer localhost:8025
+    $ python -m smtpd -n -c DebuggingServer localhost:8025
 
 
 In second Terminal

@@ -13,11 +13,9 @@ Run following comands in windows terminal(For Windows 7 and above).
     cd flask-blog
     
     pip install -r requirements.txt
-    
+   
     flask db init
-
     flask db migrate
-
     flask db upgrade
     
 
@@ -30,6 +28,5 @@ In first terminal
 
 In second Terminal
     
-    flask run
-
+    $ flask run
     

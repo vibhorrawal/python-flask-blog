@@ -3,7 +3,8 @@ import sys
 import colorama
 
 #App dependencies
-from app import create_app, db
+from app import create_app
+from app import db
 from app.models import User, Post, Message
 
 colorama.init()
